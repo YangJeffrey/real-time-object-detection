@@ -1,5 +1,9 @@
+#Real time object detection with YOLOv3 and OPENCV
+#More accurate but slower
+
 import cv2 as cv
 import numpy as np
+import sys
 
 #Write down conf, nms thresholds,inp width/height
 confThreshold = 0.25
@@ -26,9 +30,6 @@ def postprocess(frame, outs):
     classIDs = []
     confidences = []
     boxes = []
-
-
-    
 
     for out in outs:
         for detection in out:
@@ -64,7 +65,6 @@ def postprocess(frame, outs):
         
         drawPred(classIDs[i], confidences[i], left, top, left + width, top + height)
 
-
 def drawPred(classId, conf, left, top, right, bottom):
     # Draw a bounding box.
     cv.rectangle(frame, (left, top), (right, bottom), (255, 178, 50), 3)
@@ -75,15 +75,14 @@ def drawPred(classId, conf, left, top, right, bottom):
     if classes:
         assert (classId < len(classes))
         label = '%s:%s' % (classes[classId], label)
-
-    #A fancier display of the label from learnopencv.com 
-    # Display the label at the top of the bounding box
-    #labelSize, baseLine = cv.getTextSize(label, cv.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-    #top = max(top, labelSize[1])
-    #cv.rectangle(frame, (left, top - round(1.5 * labelSize[1])), (left + round(1.5 * labelSize[0]), top + baseLine),
-                 #(255, 255, 255), cv.FILLED)
-    # cv.rectangle(frame, (left,top),(right,bottom), (255,255,255), 1 )
-    #cv.putText(frame, label, (left, top), cv.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 0), 1)
+        print(label)
+        splitlist = label.split(":")
+        if splitlist[0] == "bottle":
+            intconf = float(splitlist[1])
+            if intconf > 0.90:
+                print("terminating")
+                sys.exit()
+        
     cv.putText(frame, label, (left,top), cv.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 3)
 
 def getOutputsNames(net):
@@ -100,33 +99,22 @@ net = cv.dnn.readNetFromDarknet(modelConf, modelWeights)
 net.setPreferableBackend(cv.dnn.DNN_BACKEND_OPENCV)
 net.setPreferableTarget(cv.dnn.DNN_TARGET_CPU)
 
-
 #Process inputs
 winName = 'DL OD with OpenCV'
 cv.namedWindow(winName, cv.WINDOW_NORMAL)
 cv.resizeWindow(winName, 1000,1000)
 
-
-
-
-
 cap = cv.VideoCapture(0)
 
 while cv.waitKey(1) < 0:
 
-    #get frame from video
     hasFrame, frame = cap.read()
-
-    #Create a 4D blob from a frame
     
     blob = cv.dnn.blobFromImage(frame, 1/255, (inpWidth, inpHeight), [0,0,0], 1, crop = False)
 
-    #Set the input the the net
     net.setInput(blob)
     outs = net.forward (getOutputsNames(net))
 
-
     postprocess (frame, outs)
 
-    #show the image
     cv.imshow(winName, frame)
