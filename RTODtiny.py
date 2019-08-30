@@ -1,5 +1,6 @@
 #Real time object detection with YOLOv3 and OPENCV
 #Less accurate but faster
+#Terminates when bottle is detected
 
 import cv2 as cv
 import numpy as np
