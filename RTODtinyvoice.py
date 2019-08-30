@@ -1,4 +1,5 @@
 #less accurate but runs faster
+#terminates when bottle is detected
 
 import cv2 as cv
 import numpy as np
