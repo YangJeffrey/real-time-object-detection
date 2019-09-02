@@ -1,5 +1,5 @@
 <h2>real time object detection</h2>
-currently only works if your computational system has a camera
+only works if your computational system has a camera
 <br>
 <div> for yolov3.weights and yolov3-tiny.weights:</div>
 <div> visit https://pjreddie.com/darknet/yolo/ </div>
